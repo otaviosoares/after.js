@@ -17,7 +17,7 @@ describe('loadInitialProps', () => {
 
     const expected = routes.find(r => r.path === url);
 
-    expect(matched.match).toEqual(expected);
+    expect(matched.route).toEqual(expected);
 
     expect(matched.data).toEqual({ stuff: 'home stuffs' });
   });
@@ -60,5 +60,15 @@ describe('loadInitialProps', () => {
     expect(matched.match.path).toBe(url);
 
     expect(matched.data).toBeUndefined();
+  });
+
+  it('should call getInitialProps for nested routes components', async () => {
+    const url = '/route/nested';
+
+    const matched = await loadInitialProps(routes, url, { history });
+
+    expect(matched.route.path).toBe(url);
+
+    expect(matched.data).toEqual({ sub: 'nested route' });
   });
 });

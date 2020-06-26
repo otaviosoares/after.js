@@ -1,4 +1,4 @@
-import { matchPath } from 'react-router-dom';
+import { matchRoutes, MatchedRoute } from 'react-router-config';
 import { AsyncRouteProps } from './types';
 import { isLoadableComponent } from './utils';
 
@@ -9,12 +9,13 @@ export async function ensureReady(
   routes: AsyncRouteProps[],
   pathname?: string
 ) {
+  const matchedRoutes = matchRoutes(
+    routes,
+    pathname || window.location.pathname
+  );
   await Promise.all(
-    routes.map(route => {
-      const match = matchPath(pathname || window.location.pathname, route);
+    matchedRoutes.map(({ route }: MatchedRoute<{}>) => {
       if (
-        match &&
-        route &&
         route.component &&
         isLoadableComponent(route.component) &&
         route.component.load

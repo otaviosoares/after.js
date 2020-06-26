@@ -53,6 +53,30 @@ export default [
     component: NoGetInitialProps,
   },
   {
+    path: '/route',
+    component: asyncComponent({
+      loader: () =>
+        import(
+          /* webpackChunkName: 'components-RootComponent' */ './components/RootComponent'
+        ),
+      Placeholder,
+      chunkName: 'components-RootComponent',
+    }),
+    routes: [
+      {
+        path: '/route/nested',
+        component: asyncComponent({
+          loader: () =>
+            import(
+              /* webpackChunkName: 'components-NestedComponent' */ './components/NestedComponent'
+            ),
+          Placeholder,
+          chunkName: 'components-NestedComponent',
+        }),
+      },
+    ],
+  },
+  {
     path: '*',
     component: NotFoundComponent,
   },

@@ -1,12 +1,10 @@
 import * as React from 'react';
 import {
-  Switch,
-  Route,
   withRouter,
-  Redirect,
   match as Match,
   RouteComponentProps,
 } from 'react-router-dom';
+import { renderRoutes } from 'react-router-config';
 import { loadInitialProps } from './loadInitialProps';
 import { History, Location } from 'history';
 import {
@@ -38,7 +36,7 @@ class Afterparty extends React.Component<AfterpartyProps, AfterpartyState> {
     data: this.props.data.initialData,
     previousLocation: null,
     currentLocation: this.props.location,
-    isLoading: false
+    isLoading: false,
   };
 
   prefetcherCache: object = {};
@@ -62,7 +60,7 @@ class Afterparty extends React.Component<AfterpartyProps, AfterpartyState> {
       return {
         previousLocation: state.previousLocation || previousLocation,
         currentLocation,
-        isLoading: true
+        isLoading: true,
       };
     }
 
@@ -88,12 +86,12 @@ class Afterparty extends React.Component<AfterpartyProps, AfterpartyState> {
 
       const { scrollToTop } = data.afterData;
 
-      const instantMode = isInstantTransition(transitionBehavior)
+      const instantMode = isInstantTransition(transitionBehavior);
 
       // Only for page changes, prevent scroll up for anchor links
       if (
-        (prevState.currentLocation &&
-          prevState.currentLocation.pathname) !== location.pathname &&
+        (prevState.currentLocation && prevState.currentLocation.pathname) !==
+          location.pathname &&
         // Only Scroll if scrollToTop is not false
         scrollToTop.current === true &&
         instantMode === true
@@ -148,45 +146,32 @@ class Afterparty extends React.Component<AfterpartyProps, AfterpartyState> {
     const { location: currentLocation, transitionBehavior } = this.props;
     const initialData = this.prefetcherCache[currentLocation.pathname] || data;
 
-    const instantMode = isInstantTransition(transitionBehavior)
+    const instantMode = isInstantTransition(transitionBehavior);
 
     // when we are in the instant mode we want to pass the right location prop
     // to the <Route /> otherwise it will render previous matche component
-    const location =
-      instantMode
-        ? currentLocation
-        : previousLocation || currentLocation;
+    const location = instantMode
+      ? currentLocation
+      : previousLocation || currentLocation;
 
-    return (
-      <Switch location={location}>
-        {initialData?.initialData?.statusCode === 404 &&
-          (
-            <Route
-              component={this.NotfoundComponent}
-              path={location.pathname}
-            />
-          )}
-        {initialData?.initialData?.redirectTo && (
-          <Redirect to={initialData.redirectTo} />
-        )}
-        {getAllRoutes(this.props.routes).map((r, i) => (
-          <Route
-            key={`route--${i}`}
-            path={r.path}
-            exact={r.exact}
-            render={props =>
-              React.createElement(r.component, {
-                ...initialData,
-                history: props.history,
-                match: props.match,
-                prefetch: this.prefetch,
-                location,
-                isLoading,
-              })
-            }
-          />
-        ))}
-      </Switch>
+    const routes = getAllRoutes(this.props.routes);
+
+    initialData &&
+      initialData.statusCode &&
+      initialData.statusCode === 404 &&
+      routes.unshift({
+        component: this.NotfoundComponent,
+        path: location.pathname,
+      });
+
+    return renderRoutes(
+      getAllRoutes(this.props.routes),
+      {
+        ...initialData,
+        isLoading,
+        prefetch: this.prefetch,
+      },
+      { location }
     );
   }
 }
