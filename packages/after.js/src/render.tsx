@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as ReactDOMServer from 'react-dom/server';
 import { Helmet } from 'react-helmet';
-import { matchPath, StaticRouter, RouteProps } from 'react-router-dom';
+import { StaticRouter } from 'react-router-dom';
 import { Document as DefaultDoc, __AfterContext } from './Document';
 import { After } from './After';
 import { loadInitialProps } from './loadInitialProps';
@@ -57,7 +57,7 @@ export async function render<T>(options: AfterRenderOptions<T>) {
   const context: StaticRouterContext = {};
 
   const autoScrollRef = { current: scrollToTop };
-  const { match, data: initialData } = await loadInitialProps(
+  const { match, data: initialData, route } = await loadInitialProps(
     routes,
     url.parse(req.url).pathname as string,
     {
@@ -67,6 +67,10 @@ export async function render<T>(options: AfterRenderOptions<T>) {
       ...rest,
     }
   );
+
+  if (!route) {
+    return res.status(404);
+  }
 
   if (initialData) {
     const { redirectTo, statusCode } = initialData as {
@@ -84,14 +88,12 @@ export async function render<T>(options: AfterRenderOptions<T>) {
     }
   }
 
-  if (match && match.redirectTo && match.path) {
-    res.redirect(301, req.originalUrl.replace(match.path, match.redirectTo));
+  if (match && route.redirectTo && match.path) {
+    res.redirect(301, req.originalUrl.replace(match.path, route.redirectTo));
     return;
   }
 
-  const reactRouterMatch = matchPath(req.url, match as RouteProps);
-
-  const { scripts, styles } = getAssets({ route: match, chunks });
+  const { scripts, styles } = getAssets({ route, chunks });
   const afterData: AfterClientData = {
     scrollToTop: autoScrollRef,
   };
@@ -136,7 +138,7 @@ export async function render<T>(options: AfterRenderOptions<T>) {
     renderPage,
     data,
     helmet: Helmet.renderStatic(),
-    match: reactRouterMatch,
+    match,
     scripts,
     styles,
     scrollToTop: autoScrollRef,
@@ -148,7 +150,7 @@ export async function render<T>(options: AfterRenderOptions<T>) {
     data,
     scripts,
     styles,
-    match: reactRouterMatch,
+    match,
     ...rest,
     ...docProps,
     html,

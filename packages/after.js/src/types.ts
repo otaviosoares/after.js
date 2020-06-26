@@ -1,8 +1,5 @@
-import {
-  RouteProps,
-  RouteComponentProps,
-  match as Match,
-} from 'react-router-dom';
+import { match as Match } from 'react-router-dom';
+import { RouteConfig, RouteConfigComponentProps } from 'react-router-config';
 import { HelmetData } from 'react-helmet';
 import { Request, Response } from 'express';
 import { History, Location } from 'history';
@@ -25,7 +22,9 @@ export interface AsyncComponent {
   getChunkName: () => string | undefined;
 }
 
-export type AsyncRouteComponentType<Props> = React.ComponentType<Props> &
+export type AsyncRouteComponentType<Props> = React.ComponentType<
+  RouteConfigComponentProps<Props>
+> &
   AsyncComponent;
 
 /**
@@ -38,17 +37,18 @@ export type AsyncRouteComponentType<Props> = React.ComponentType<Props> &
  */
 export type AsyncRouteableComponent<Props = any> =
   // re-exported from react-router (RouteComponentProps)
-  | React.ComponentType<RouteComponentProps<Props>>
-  | React.ComponentType<Props>
+  | React.ComponentType<RouteConfigComponentProps<Props>>
+  | React.ComponentType<RouteConfigComponentProps>
+  | React.ComponentType
   // After.js Page Component (getInitialProps and ...)
-  | AsyncRouteComponentType<RouteComponentProps<Props>>
-  | AsyncRouteComponentType<Props>;
+  | AsyncRouteComponentType<RouteConfigComponentProps<Props>>
+  | AsyncRouteComponentType<RouteConfigComponentProps>;
 
 export interface AsyncRouteComponentState {
   Component: AsyncRouteableComponent | null;
 }
 
-export interface AsyncRouteProps<Props = any> extends RouteProps {
+export interface AsyncRouteProps<Props = any> extends RouteConfig {
   path?: string;
   Placeholder?: React.ComponentType<any>;
   component: AsyncRouteableComponent<Props>;
@@ -66,7 +66,8 @@ export interface ServerAppState {
 }
 
 export interface InitialProps {
-  match?: AsyncRouteProps;
+  route?: AsyncRouteProps;
+  match?: Match<{}>;
   data: InitialData;
 }
 
@@ -94,7 +95,7 @@ export interface DocumentgetInitialProps<T = RenderPageResult> {
   assets: Assets;
   data: ServerAppState;
   renderPage: () => Promise<T>;
-  match: Match | null;
+  match: Match | undefined;
   scripts: string[];
   styles: string[];
   scrollToTop: ScrollToTop;

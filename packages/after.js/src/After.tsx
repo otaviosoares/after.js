@@ -1,12 +1,10 @@
 import * as React from 'react';
 import {
-  Switch,
-  Route,
   withRouter,
-  Redirect,
   match as Match,
   RouteComponentProps,
 } from 'react-router-dom';
+import { renderRoutes } from 'react-router-config';
 import { loadInitialProps } from './loadInitialProps';
 import { History, Location } from 'history';
 import { AsyncRouteProps, ServerAppState, InitialData } from './types';
@@ -128,36 +126,23 @@ class Afterparty extends React.Component<AfterpartyProps, AfterpartyState> {
 
     const location = previousLocation || currentLocation;
 
-    return (
-      <Switch location={location}>
-        {initialData &&
-          initialData.statusCode &&
-          initialData.statusCode === 404 && (
-            <Route
-              component={this.NotfoundComponent}
-              path={location.pathname}
-            />
-          )}
-        {initialData && initialData.redirectTo && initialData.redirectTo && (
-          <Redirect to={initialData.redirectTo} />
-        )}
-        {getAllRoutes(this.props.routes).map((r, i) => (
-          <Route
-            key={`route--${i}`}
-            path={r.path}
-            exact={r.exact}
-            render={props =>
-              React.createElement(r.component, {
-                ...initialData,
-                history: props.history,
-                match: props.match,
-                prefetch: this.prefetch,
-                location,
-              })
-            }
-          />
-        ))}
-      </Switch>
+    const routes = getAllRoutes(this.props.routes);
+
+    initialData &&
+      initialData.statusCode &&
+      initialData.statusCode === 404 &&
+      routes.unshift({
+        component: this.NotfoundComponent,
+        path: location.pathname,
+      });
+
+    return renderRoutes(
+      getAllRoutes(this.props.routes),
+      {
+        ...initialData,
+        prefetch: this.prefetch,
+      },
+      { location }
     );
   }
 }

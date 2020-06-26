@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { RouteConfigComponentProps } from 'react-router-config';
 import {
   Module,
   AsyncRouteComponentState,
@@ -17,14 +18,14 @@ export function asyncComponent<Props>({
   chunkName,
 }: {
   loader: () => Promise<Module<React.ComponentType<Props>>>;
-  Placeholder?: React.ComponentType<Props>;
+  Placeholder?: React.ComponentType<RouteConfigComponentProps<Props>>;
   chunkName?: string;
 }) {
   // keep Component in a closure to avoid doing this stuff more than once
   let Component: AsyncRouteComponentType<Props> | null = null;
 
   return class AsyncRouteComponent extends React.Component<
-    Props,
+    RouteConfigComponentProps<Props>,
     AsyncRouteComponentState
   > {
     /**

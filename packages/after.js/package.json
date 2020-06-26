@@ -59,6 +59,7 @@
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0",
     "react-helmet": ">=6.0.0",
+    "react-router-config": ">=5.0.0",
     "react-router-dom": ">=5.0.0",
     "serialize-javascript": ">=3.0.0"
   },
@@ -82,12 +83,15 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-helmet": "^6.0.0",
+    "react-router": "^5.1.1",
+    "react-router-config": "^5.1.1",
     "react-router-dom": "^5.1.2",
     "serialize-javascript": "^3.0.0",
     "ts-jest": "^25.4.0",
     "typescript": "^3.8.3"
   },
   "dependencies": {
+    "@types/react-router-config": "^5.0.1",
     "babel-plugin-after": "^3.0.2"
   }
 }
