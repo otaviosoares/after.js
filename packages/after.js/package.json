@@ -22,7 +22,7 @@
     "getAssets.js"
   ],
   "scripts": {
-    "prepare": "rm -rf build && npm run build:esm && npm run build:cjs",
+    "build": "rm -rf build && npm run build:esm && npm run build:cjs",
     "build:esm": "tsc -p tsconfig.build.json --module es2015 --outDir build/esm",
     "build:cjs": "tsc -p tsconfig.build.json --module commonjs --outDir build/cjs",
     "start": "tsc -p tsconfig.build.json --module commonjs --outDir build -w",
