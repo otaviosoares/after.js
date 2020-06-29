@@ -1,4 +1,4 @@
-import { AsyncRouteableComponent, AsyncRouteComponentType, AsyncRouteProps } from './types';
+import { AsyncRouteableComponent, AsyncRouteComponentType, AsyncRouteProps, TransitionBehavior } from './types';
 /** @private is the given object a Function? */
 export declare const isFunction: (obj: any) => boolean;
 /** @private is the given object an Object? */
@@ -21,3 +21,5 @@ export declare function get404Component(routes: AsyncRouteProps<any>[]): AsyncRo
 export declare function getAllRoutes(routes: AsyncRouteProps<any>[]): AsyncRouteProps<any>[];
 /** @private Checks if given string ends with ".js" */
 export declare function isJS(str: string): boolean;
+/** @private Checks if given transition type is instant */
+export declare function isInstantTransition(transition: TransitionBehavior): boolean;

@@ -132,7 +132,7 @@ function render(options) {
                                             html: ReactDOMServer.renderToString(element),
                                         }); };
                                         renderer = customRenderer || defaultRenderer;
-                                        asyncOrSyncRender = renderer(React.createElement(react_router_dom_1.StaticRouter, { location: req.url, context: context }, fn(After_1.After)({ routes: routes, data: data })));
+                                        asyncOrSyncRender = renderer(React.createElement(react_router_dom_1.StaticRouter, { location: req.url, context: context }, fn(After_1.After)({ routes: routes, data: data, transitionBehavior: 'blocking' })));
                                         return [4 /*yield*/, asyncOrSyncRender];
                                     case 1:
                                         renderedContent = _a.sent();

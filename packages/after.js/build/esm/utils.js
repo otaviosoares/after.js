@@ -61,4 +61,8 @@ export function getAllRoutes(routes) {
 export function isJS(str) {
     return str.endsWith('.js');
 }
+/** @private Checks if given transition type is instant */
+export function isInstantTransition(transition) {
+    return transition === "instant";
+}
 //# sourceMappingURL=utils.js.map

@@ -72,4 +72,9 @@ function isJS(str) {
     return str.endsWith('.js');
 }
 exports.isJS = isJS;
+/** @private Checks if given transition type is instant */
+function isInstantTransition(transition) {
+    return transition === "instant";
+}
+exports.isInstantTransition = isInstantTransition;
 //# sourceMappingURL=utils.js.map

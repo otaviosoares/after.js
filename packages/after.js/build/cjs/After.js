@@ -49,8 +49,16 @@ var loadInitialProps_1 = require("./loadInitialProps");
 var utils_1 = require("./utils");
 var Afterparty = /** @class */ (function (_super) {
     __extends(Afterparty, _super);
-    function Afterparty(props) {
-        var _this = _super.call(this, props) || this;
+    function Afterparty() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.state = {
+            data: _this.props.data.initialData,
+            previousLocation: null,
+            currentLocation: _this.props.location,
+            isLoading: false,
+        };
+        _this.prefetcherCache = {};
+        _this.NotfoundComponent = utils_1.get404Component(_this.props.routes);
         _this.prefetch = function (pathname) {
             loadInitialProps_1.loadInitialProps(_this.props.routes, pathname, {
                 history: _this.props.history,
@@ -62,13 +70,6 @@ var Afterparty = /** @class */ (function (_super) {
             })
                 .catch(function (e) { return console.log(e); });
         };
-        _this.state = {
-            data: props.data.initialData,
-            previousLocation: null,
-            currentLocation: props.location,
-        };
-        _this.prefetcherCache = {};
-        _this.NotfoundComponent = utils_1.get404Component(props.routes);
         return _this;
     }
     Afterparty.getDerivedStateFromProps = function (props, state) {
@@ -79,6 +80,7 @@ var Afterparty = /** @class */ (function (_super) {
             return {
                 previousLocation: state.previousLocation || previousLocation,
                 currentLocation: currentLocation,
+                isLoading: true,
             };
         }
         return null;
@@ -87,26 +89,36 @@ var Afterparty = /** @class */ (function (_super) {
         var _this = this;
         var navigated = prevState.currentLocation !== this.state.currentLocation;
         if (navigated) {
-            var _a = this.props, location_1 = _a.location, history_1 = _a.history, routes = _a.routes, data = _a.data, 
+            var _a = this.props, location_1 = _a.location, history_1 = _a.history, routes = _a.routes, data = _a.data, transitionBehavior = _a.transitionBehavior, 
             // we don't want to pass these
             // to loadInitialProps()
-            match = _a.match, staticContext = _a.staticContext, children = _a.children, rest = __rest(_a, ["location", "history", "routes", "data", "match", "staticContext", "children"]);
-            var scrollToTop = data.afterData.scrollToTop;
+            match = _a.match, staticContext = _a.staticContext, children = _a.children, rest = __rest(_a, ["location", "history", "routes", "data", "transitionBehavior", "match", "staticContext", "children"]);
+            var scrollToTop_1 = data.afterData.scrollToTop;
+            var instantMode_1 = utils_1.isInstantTransition(transitionBehavior);
+            // Only for page changes, prevent scroll up for anchor links
+            if ((prevState.currentLocation && prevState.currentLocation.pathname) !==
+                location_1.pathname &&
+                // Only Scroll if scrollToTop is not false
+                scrollToTop_1.current === true &&
+                instantMode_1 === true) {
+                window.scrollTo(0, 0);
+            }
             loadInitialProps_1.loadInitialProps(routes, location_1.pathname, __assign({ location: location_1,
                 history: history_1,
-                scrollToTop: scrollToTop }, rest))
+                scrollToTop: scrollToTop_1 }, rest))
                 .then(function (_a) {
                 var data = _a.data;
                 if (_this.state.currentLocation !== location_1)
                     return;
                 // Only for page changes, prevent scroll up for anchor links
-                if ((prevState.previousLocation &&
-                    prevState.previousLocation.pathname) !== location_1.pathname &&
+                if ((prevState.currentLocation &&
+                    prevState.currentLocation.pathname) !== location_1.pathname &&
                     // Only Scroll if scrollToTop is not false
-                    _this.props.data.afterData.scrollToTop.current) {
+                    scrollToTop_1.current === true &&
+                    instantMode_1 === false) {
                     window.scrollTo(0, 0);
                 }
-                _this.setState({ previousLocation: null, data: data });
+                _this.setState({ previousLocation: null, data: data, isLoading: false });
             })
                 .catch(function (e) {
                 // @todo we should more cleverly handle errors???
@@ -115,10 +127,15 @@ var Afterparty = /** @class */ (function (_super) {
         }
     };
     Afterparty.prototype.render = function () {
-        var _a = this.state, previousLocation = _a.previousLocation, data = _a.data;
-        var currentLocation = this.props.location;
+        var _a = this.state, previousLocation = _a.previousLocation, data = _a.data, isLoading = _a.isLoading;
+        var _b = this.props, currentLocation = _b.location, transitionBehavior = _b.transitionBehavior;
         var initialData = this.prefetcherCache[currentLocation.pathname] || data;
-        var location = previousLocation || currentLocation;
+        var instantMode = utils_1.isInstantTransition(transitionBehavior);
+        // when we are in the instant mode we want to pass the right location prop
+        // to the <Route /> otherwise it will render previous matche component
+        var location = instantMode
+            ? currentLocation
+            : previousLocation || currentLocation;
         var routes = utils_1.getAllRoutes(this.props.routes);
         initialData &&
             initialData.statusCode &&
@@ -127,7 +144,10 @@ var Afterparty = /** @class */ (function (_super) {
                 component: this.NotfoundComponent,
                 path: location.pathname,
             });
-        return react_router_config_1.renderRoutes(utils_1.getAllRoutes(this.props.routes), __assign(__assign({}, initialData), { prefetch: this.prefetch }), { location: location });
+        return react_router_config_1.renderRoutes(utils_1.getAllRoutes(this.props.routes), __assign(__assign({}, initialData), { isLoading: isLoading, prefetch: this.prefetch }), { location: location });
+    };
+    Afterparty.defaultProps = {
+        transitionBehavior: 'blocking',
     };
     return Afterparty;
 }(React.Component));

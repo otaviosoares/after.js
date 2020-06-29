@@ -60,6 +60,7 @@ export interface RenderPageResult {
     html: string;
     helmet: HelmetData;
 }
+export declare type TransitionBehavior = 'blocking' | 'instant';
 export interface DocumentgetInitialProps<T = RenderPageResult> {
     req: Request;
     res: Response;
